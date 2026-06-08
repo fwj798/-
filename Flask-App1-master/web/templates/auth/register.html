@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - 天猫商品销售数据分析系统</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- 优雅字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fc 0%, #eef2f7 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .register-card {
+            max-width: 500px;
+            width: 100%;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 6px 12px rgba(0, 0, 0, 0.05);
+            border: none;
+            background-color: #ffffff;
+            transition: all 0.3s ease;
+        }
+        .form-control, .input-group-text {
+            border-radius: 14px;
+            transition: all 0.2s;
+        }
+        .form-control {
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            background-color: #ffffff;
+            font-weight: 500;
+        }
+        .form-control:focus {
+            border-color: #e05a00;
+            box-shadow: 0 0 0 3px rgba(224, 90, 0, 0.2);
+            outline: none;
+        }
+        .input-group-text {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-right: none;
+            color: #e05a00;
+        }
+        .btn-register {
+            background: linear-gradient(95deg, #e05a00 0%, #ff6f2c 100%);
+            border: none;
+            padding: 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.25s;
+            box-shadow: 0 4px 10px rgba(224, 90, 0, 0.3);
+        }
+        .btn-register:hover {
+            background: linear-gradient(95deg, #cc4f00 0%, #e05a00 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(224, 90, 0, 0.35);
+        }
+        .btn-register:active {
+            transform: translateY(1px);
+        }
+        .form-check-input:checked {
+            background-color: #e05a00;
+            border-color: #e05a00;
+        }
+        .text-primary-custom {
+            color: #e05a00 !important;
+        }
+        a.text-primary-custom:hover {
+            color: #c04e00 !important;
+        }
+        .password-strength {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        .invalid-feedback {
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="register-card p-4 p-md-5">
+    <div class="text-center mb-4">
+        <i class="bi bi-cart4 fs-1" style="color: #e05a00;"></i>
+        <h2 class="fw-bold mt-2" style="color: #1e293b;">创建账号</h2>
+        <p class="text-secondary">开启您的天猫数据洞察之旅</p>
+    </div>
+
+    <form method="POST" id="registerForm" novalidate>
+        {{ form.hidden_tag() }}
+
+        <!-- 用户名 -->
+        <div class="mb-4">
+            <label class="form-label fw-semibold text-secondary">{{ form.username.label.text }}</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-person-circle"></i></span>
+                {{ form.username(class="form-control border-start-0 ps-0", placeholder="请输入用户名 / 手机号", id="username") }}
+            </div>
+            <div class="invalid-feedback" id="usernameFeedback">用户名至少需要3个字符</div>
+        </div>
+
+        <!-- 邮箱 -->
+        <div class="mb-4">
+            <label class="form-label fw-semibold text-secondary">{{ form.email.label.text }}</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-envelope"></i></span>
+                {{ form.email(class="form-control border-start-0 ps-0", placeholder="请输入邮箱地址", id="email") }}
+            </div>
+            <div class="invalid-feedback" id="emailFeedback">请输入有效的邮箱地址</div>
+        </div>
+
+        <!-- 密码 -->
+        <div class="mb-4">
+            <label class="form-label fw-semibold text-secondary">{{ form.password.label.text }}</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-key"></i></span>
+                {{ form.password(class="form-control border-start-0 ps-0", placeholder="请输入密码", id="password") }}
+            </div>
+            <div class="password-strength" id="passwordStrength"></div>
+            <div class="invalid-feedback" id="passwordFeedback">密码长度至少6位</div>
+        </div>
+
+        <!-- 确认密码 -->
+        <div class="mb-4">
+            <label class="form-label fw-semibold text-secondary">{{ form.password2.label.text }}</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-lock-fill"></i></span>
+                {{ form.password2(class="form-control border-start-0 ps-0", placeholder="请再次输入密码", id="password2") }}
+            </div>
+            <div class="invalid-feedback" id="password2Feedback">两次输入的密码不一致</div>
+        </div>
+
+        <!-- 注册按钮 -->
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-register w-100 fw-semibold" id="submitBtn">
+                <i class="bi bi-person-plus me-2"></i>立即注册
+            </button>
+        </div>
+
+        <!-- 已有账号链接 -->
+        <div class="text-center mt-4">
+            <p class="text-muted">已有账号？ <a href="{{ url_for('auth.login') }}" class="text-decoration-none fw-semibold text-primary-custom">去登录</a></p>
+            <div class="border-top pt-3 mt-2 d-flex justify-content-center gap-3 flex-wrap">
+                <span class="small text-secondary"><i class="bi bi-shield-check"></i> 数据安全加密</span>
+                <span class="small text-secondary"><i class="bi bi-headset"></i> 专享技术支持</span>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    (function() {
+        const form = document.getElementById('registerForm');
+        const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const password2Input = document.getElementById('password2');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function setValid(input, isValid, feedbackId, customMsg = '') {
+            const feedback = document.getElementById(feedbackId);
+            if (isValid) {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+                if (feedback) feedback.style.display = 'none';
+            } else {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+                if (feedback) {
+                    if (customMsg) feedback.innerText = customMsg;
+                    feedback.style.display = 'block';
+                }
+            }
+            return isValid;
+        }
+
+        function validateUsername() {
+            const val = usernameInput.value.trim();
+            const isValid = val.length >= 3;
+            setValid(usernameInput, isValid, 'usernameFeedback', '用户名至少需要3个字符');
+            return isValid;
+        }
+
+        function validateEmail() {
+            const val = emailInput.value.trim();
+            const re = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
+            const isValid = re.test(val);
+            setValid(emailInput, isValid, 'emailFeedback', '请输入有效的邮箱地址');
+            return isValid;
+        }
+
+        function checkPasswordStrength() {
+            const pwd = passwordInput.value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            const isValidLength = pwd.length >= 6;
+            setValid(passwordInput, isValidLength, 'passwordFeedback', '密码长度至少6位');
+
+            if (pwd.length === 0) {
+                strengthDiv.innerHTML = '';
+                return false;
+            }
+            let strength = '';
+            let strengthColor = '';
+            if (pwd.length < 6) {
+                strength = '密码太短';
+                strengthColor = '#dc3545';
+            } else if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(pwd)) {
+                strength = '强密码 (包含大小写、数字、特殊字符)';
+                strengthColor = '#28a745';
+            } else if (/^(?=.*[a-zA-Z])(?=.*\d)/.test(pwd)) {
+                strength = '中等密码 (字母+数字)';
+                strengthColor = '#ffc107';
+            } else {
+                strength = '弱密码 (建议包含字母、数字)';
+                strengthColor = '#fd7e14';
+            }
+            strengthDiv.innerHTML = `<i class="bi bi-info-circle"></i> ${strength}`;
+            strengthDiv.style.color = strengthColor;
+            return isValidLength;
+        }
+
+        function validatePasswordMatch() {
+            const pwd = passwordInput.value;
+            const pwd2 = password2Input.value;
+            const isValid = pwd === pwd2 && pwd.length > 0;
+            setValid(password2Input, isValid, 'password2Feedback', '两次输入的密码不一致');
+            return isValid;
+        }
+
+        // 实时监听
+        if (usernameInput) usernameInput.addEventListener('input', validateUsername);
+        if (emailInput) emailInput.addEventListener('input', validateEmail);
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                checkPasswordStrength();
+                validatePasswordMatch();
+            });
+        }
+        if (password2Input) password2Input.addEventListener('input', validatePasswordMatch);
+
+        // 表单提交前最终验证
+        form.addEventListener('submit', function(e) {
+            const isUsernameOk = validateUsername();
+            const isEmailOk = validateEmail();
+            const isPwdOk = checkPasswordStrength();
+            const isMatchOk = validatePasswordMatch();
+
+            if (!(isUsernameOk && isEmailOk && isPwdOk && isMatchOk)) {
+                e.preventDefault();
+                const firstInvalid = document.querySelector('.is-invalid');
+                if (firstInvalid) firstInvalid.focus();
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>注册中...';
+            }
+        });
+    })();
+</script>
+</body>
+</html>

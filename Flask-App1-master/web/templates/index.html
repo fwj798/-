@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.4, initial-scale=0.8">
+    <title>天猫销售数据分析系统 - 后台管理</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- 谷歌字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        body {
+            background-color: #f8f9fc;
+            overflow-x: hidden;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            width: 260px;
+            background: linear-gradient(180deg, #1e2a3a 0%, #0f1724 100%);
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+        }
+        .sidebar .logo {
+            padding: 1.5rem 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1rem;
+        }
+        .sidebar .logo a {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+        .sidebar .logo i {
+            color: #e05a00;
+            font-size: 1.6rem;
+            margin-right: 8px;
+        }
+        .sidebar .nav-link {
+            color: #cdd9f4;
+            padding: 0.7rem 1.5rem;
+            margin: 0.2rem 0;
+            border-radius: 0 40px 40px 0;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .sidebar .nav-link:hover {
+            background: rgba(224, 90, 0, 0.2);
+            color: white;
+            transform: translateX(4px);
+        }
+        .sidebar .nav-link.active {
+            background: linear-gradient(95deg, #e05a00, #ff6f2c);
+            color: white;
+            box-shadow: 0 2px 8px rgba(224,90,0,0.3);
+        }
+        .sidebar .nav-link i {
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+        .main-content {
+            margin-left: 260px;
+            padding: 1.2rem;
+            transition: all 0.3s;
+        }
+        .top-navbar {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            padding: 0.7rem 1.5rem;
+            margin-bottom: 1.8rem;
+        }
+        .user-dropdown .dropdown-toggle::after {
+            display: none;
+        }
+        .user-dropdown .dropdown-menu {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            padding: 0.5rem 0;
+        }
+        .user-dropdown .dropdown-item {
+            padding: 0.5rem 1.2rem;
+            font-size: 0.9rem;
+        }
+        .user-dropdown .dropdown-item i {
+            margin-right: 8px;
+            color: #e05a00;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 28px;
+            border: none;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+        }
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            background: #fff0e6;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e05a00;
+            font-size: 1.8rem;
+        }
+        .stat-title {
+            color: #5a6e8a;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e2a3a;
+        }
+        .welcome-card {
+            background: linear-gradient(135deg, #e05a00 0%, #ff8c42 100%);
+            border-radius: 28px;
+            padding: 1.8rem;
+            color: white;
+            margin-bottom: 2rem;
+        }
+        .btn-outline-light-custom {
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 30px;
+            padding: 0.4rem 1rem;
+            color: white;
+            transition: 0.2s;
+        }
+        .btn-outline-light-custom:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 1050;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        #live2d-widget {
+            z-index: 1030;
+        }
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #8a99b4;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 侧边栏导航 -->
+<div class="sidebar" id="sidebar">
+    <div class="logo">
+        <a href="{{ url_for('main.index') }}">
+            <i class="bi bi-cart4"></i> 天猫数据分析
+        </a>
+    </div>
+    <div class="nav flex-column">
+        <!-- 数据全景大屏 -> 首页 -->
+        <a href="{{ url_for('main.index') }}" class="nav-link active" id="nav-dashboard">
+            <i class="bi bi-speedometer2"></i> 数据全景大屏
+        </a>
+        <!-- 用户管理（管理员可见） -->
+        <a href="{{ url_for('manger.user_manager') }}" class="nav-link" id="nav-user-manager">
+            <i class="bi bi-people"></i> 用户管理
+        </a>
+        <!-- 商品销量分析 -->
+        <a href="{{ url_for('menu.anaylise') }}" class="nav-link" id="nav-analysis">
+            <i class="bi bi-graph-up"></i> 商品销量分析
+        </a>
+        <!-- 商品数据管理（若暂无路由可暂时保留为#或指向首页） -->
+        <a href="{{ url_for('main.index') }}" class="nav-link" id="nav-product">
+            <i class="bi bi-box-seam"></i> 商品数据管理
+        </a>
+        <!-- 个人信息（若暂无路由可暂时指向首页） -->
+        <a href="{{ url_for('main.index') }}" class="nav-link" id="nav-profile">
+            <i class="bi bi-person-badge"></i> 个人信息
+        </a>
+    </div>
+</div>
+
+<!-- 主内容区 -->
+<div class="main-content">
+    <!-- 顶部导航栏 -->
+    <div class="top-navbar d-flex justify-content-between align-items-center flex-wrap">
+        <div class="d-flex align-items-center">
+            <button class="btn btn-link text-dark me-3 d-lg-none" id="sidebarToggle">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <h5 class="mb-0 fw-semibold">欢迎回来，{{ current_user.username if current_user.is_authenticated else '管理员' }}</h5>
+        </div>
+        <div class="user-dropdown dropdown">
+            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="rounded-circle bg-light p-2 me-2">
+                    <i class="bi bi-person-circle fs-5 text-secondary"></i>
+                </div>
+                <span class="fw-semibold text-secondary">{{ current_user.username if current_user.is_authenticated else '账号' }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{{ url_for('main.index') }}"><i class="bi bi-person"></i> 个人资料</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> 退出登录</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 欢迎卡片（数据概览入口） -->
+    <div class="welcome-card d-flex justify-content-between align-items-center flex-wrap">
+        <div>
+            <h3 class="fw-bold">天猫销售数据全景大屏</h3>
+            <p class="mb-0 opacity-75">洞察 2025 年 1-11 月销售趋势 · 实时掌握品类动态</p>
+        </div>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-light-custom mt-2 mt-sm-0">
+            进入大屏 <i class="bi bi-arrow-right-short"></i>
+        </a>
+    </div>
+
+    <!-- 关键指标卡片（示例） -->
+    <div class="row g-4 mb-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card p-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-title">总销售额（万元）</div>
+                        <div class="stat-value">12,845</div>
+                        <span class="badge bg-success bg-opacity-10 text-success mt-2">↑ 15.3%</span>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card p-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-title">总销量（万件）</div>
+                        <div class="stat-value">3,892</div>
+                        <span class="badge bg-success bg-opacity-10 text-success mt-2">↑ 8.2%</span>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="bi bi-bar-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card p-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-title">活跃类目数</div>
+                        <div class="stat-value">426</div>
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary mt-2">覆盖全品类</span>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="bi bi-grid-3x3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card p-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-title">平均客单价（元）</div>
+                        <div class="stat-value">98.7</div>
+                        <span class="badge bg-warning bg-opacity-10 text-warning mt-2">同比 +5%</span>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="bi bi-tag"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快速入口卡片 -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                            <i class="bi bi-bar-chart-steps fs-3 text-primary"></i>
+                        </div>
+                        <h5 class="card-title fw-semibold mb-0">商品销量分析</h5>
+                    </div>
+                    <p class="card-text text-secondary">查看2025年各二级类目销量曲线、单品销量排行、销售额分布，辅助运营决策。</p>
+                    <a href="{{ url_for('menu.anaylise') }}" class="btn btn-outline-primary rounded-pill px-4">立即分析 <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                            <i class="bi bi-people fs-3 text-success"></i>
+                        </div>
+                        <h5 class="card-title fw-semibold mb-0">用户管理</h5>
+                    </div>
+                    <p class="card-text text-secondary">管理平台用户、分配角色、重置密码，保障系统安全与权限管控。</p>
+                    <a href="{{ url_for('manger.user_manager') }}" class="btn btn-outline-success rounded-pill px-4">前往管理 <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <hr class="my-4">
+        <p>天猫商品销售数据分析系统 © 2025 | 数据驱动增长，洞察引领未来</p>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('show');
+    });
+    document.querySelector('.main-content')?.addEventListener('click', function(e) {
+        if (window.innerWidth < 992) {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('show')) sidebar.classList.remove('show');
+        }
+    });
+    // 高亮当前激活菜单
+    const currentPath = window.location.pathname;
+    document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPath || (currentPath === '/' && href === "{{ url_for('main.index') }}")) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+</script>
+<!-- 看板娘（可选） -->
+<script src="https://eqcn.ajz.miesnfu.com/wp-content/plugins/wp-3d-pony/live2dw/lib/L2Dwidget.min.js"></script>
+<script>
+    if (typeof L2Dwidget !== 'undefined') {
+        L2Dwidget.init({
+            "model": { jsonPath: "https://unpkg.com/live2d-widget-model-koharu@1.0.5/assets/koharu.model.json", "scale": 1 },
+            "display": { "position": "left", "width": 80, "height": 160, "hOffset": 0, "vOffset": -20 },
+            "mobile": { "show": true, "scale": 0.5 },
+            "react": { "opacityDefault": 0.7, "opacityOnHover": 0.2 }
+        });
+    }
+</script>
+</body>
+</html>

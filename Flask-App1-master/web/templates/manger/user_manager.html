@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 天猫销售数据分析系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        body { background-color: #f8f9fc; overflow-x: hidden; }
+        .sidebar {
+            position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
+            width: 260px;
+            background: linear-gradient(180deg, #1e2a3a 0%, #0f1724 100%);
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+        }
+        .sidebar .logo {
+            padding: 1.5rem 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1rem;
+        }
+        .sidebar .logo a {
+            color: white; font-size: 1.3rem; font-weight: 700;
+            text-decoration: none; letter-spacing: 1px;
+        }
+        .sidebar .logo i { color: #e05a00; font-size: 1.6rem; margin-right: 8px; }
+        .sidebar .nav-link {
+            color: #cdd9f4; padding: 0.7rem 1.5rem; margin: 0.2rem 0;
+            border-radius: 0 40px 40px 0; transition: all 0.2s; font-weight: 500;
+        }
+        .sidebar .nav-link:hover {
+            background: rgba(224, 90, 0, 0.2); color: white; transform: translateX(4px);
+        }
+        .sidebar .nav-link.active {
+            background: linear-gradient(95deg, #e05a00, #ff6f2c);
+            color: white; box-shadow: 0 2px 8px rgba(224,90,0,0.3);
+        }
+        .sidebar .nav-link i { margin-right: 12px; font-size: 1.2rem; }
+        .main-content { margin-left: 260px; padding: 1.2rem; transition: all 0.3s; }
+        .top-navbar {
+            background: white; border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            padding: 0.7rem 1.5rem; margin-bottom: 1.8rem;
+        }
+        .content-card {
+            background: white; border-radius: 28px; border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            padding: 1.5rem;
+        }
+        .table > :not(caption) > * > * {
+            vertical-align: middle;
+        }
+        .table thead th {
+            background-color: #f8f9fc;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #5a6e8a;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .badge-role {
+            background-color: #fff0e6;
+            color: #e05a00;
+            font-weight: 500;
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+        }
+        .pagination .page-link {
+            border-radius: 10px;
+            margin: 0 2px;
+            color: #5a6e8a;
+            border: 1px solid #e9ecef;
+        }
+        .pagination .page-link:hover {
+            background-color: #fff0e6;
+            border-color: #e05a00;
+            color: #e05a00;
+        }
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(95deg, #e05a00, #ff6f2c);
+            border-color: #e05a00;
+            color: white;
+        }
+        .search-box {
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem 1rem;
+        }
+        .search-box:focus {
+            border-color: #e05a00;
+            box-shadow: 0 0 0 3px rgba(224, 90, 0, 0.15);
+            outline: none;
+        }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); z-index: 1050; }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+        }
+        footer { text-align: center; margin-top: 2rem; color: #8a99b4; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<!-- 侧边栏 -->
+<div class="sidebar" id="sidebar">
+    <div class="logo">
+        <a href="{{ url_for('main.index') }}">
+            <i class="bi bi-cart4"></i> 天猫数据分析
+        </a>
+    </div>
+    <div class="nav flex-column">
+        <a href="{{ url_for('main.index') }}" class="nav-link" id="nav-dashboard">
+            <i class="bi bi-speedometer2"></i> 数据全景大屏
+        </a>
+        <a href="{{ url_for('manger.user_manager') }}" class="nav-link active" id="nav-user-manager">
+            <i class="bi bi-people"></i> 用户管理
+        </a>
+        <a href="{{ url_for('menu.anaylise') }}" class="nav-link" id="nav-analysis">
+            <i class="bi bi-graph-up"></i> 商品销量分析
+        </a>
+        <a href="{{ url_for('main.index') }}" class="nav-link" id="nav-product">
+            <i class="bi bi-box-seam"></i> 商品数据管理
+        </a>
+        <a href="{{ url_for('main.index') }}" class="nav-link" id="nav-profile">
+            <i class="bi bi-person-badge"></i> 个人信息
+        </a>
+    </div>
+</div>
+
+<!-- 主内容区 -->
+<div class="main-content">
+    <!-- 顶部导航栏 -->
+    <div class="top-navbar d-flex justify-content-between align-items-center flex-wrap">
+        <div class="d-flex align-items-center">
+            <button class="btn btn-link text-dark me-3 d-lg-none" id="sidebarToggle">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <h5 class="mb-0 fw-semibold">用户管理</h5>
+        </div>
+        <div>
+            <span class="text-muted small me-3"><i class="bi bi-people"></i> 共 <strong id="totalCount">0</strong> 名用户</span>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                <i class="bi bi-box-arrow-right"></i> 退出
+            </a>
+        </div>
+    </div>
+
+    <!-- 功能栏 -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-funnel fs-5 text-secondary"></i>
+            <select class="form-select form-select-sm rounded-pill" style="width: auto;" id="pageSizeSelect">
+                <option value="7">每页 7 条</option>
+                <option value="14">每页 14 条</option>
+                <option value="21">每页 21 条</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 用户列表卡片 -->
+    <div class="content-card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="userTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>邮箱</th>
+                        <th>注册时间</th>
+                        <th>角色</th>
+                        <th class="text-center">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <tr id="loadingRow">
+                        <td colspan="6" class="text-center py-4">
+                            <div class="spinner-border text-secondary" role="status">
+                                <span class="visually-hidden">加载中...</span>
+                            </div>
+                            <p class="text-muted mt-2 mb-0">正在加载用户数据...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
+            <div class="text-muted small" id="pageInfo">第 0 页 / 共 0 页</div>
+            <nav>
+                <ul class="pagination mb-0" id="pagination">
+                    <li class="page-item disabled" id="prevPageLi">
+                        <a class="page-link" href="#" id="prevPage"><i class="bi bi-chevron-left"></i></a>
+                    </li>
+                    <li class="page-item active" id="page1Li">
+                        <a class="page-link" href="#" id="page1">1</a>
+                    </li>
+                    <li class="page-item disabled" id="nextPageLi">
+                        <a class="page-link" href="#" id="nextPage"><i class="bi bi-chevron-right"></i></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-semibold"><i class="bi bi-exclamation-triangle text-danger me-2"></i>确认删除</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pt-3">
+                    <p class="mb-0" id="deleteConfirmMsg">确定要删除该用户吗？此操作不可恢复。</p>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger rounded-pill px-4" id="confirmDeleteBtn">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示 Toast -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+        <div id="toastMsg" class="toast align-items-center border-0 rounded-4" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-semibold" id="toastBody"></div>
+                <button type="button" class="btn-close me-3 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <hr class="my-4">
+        <p>天猫商品销售数据分析系统 © 2025 | 数据驱动增长，洞察引领未来</p>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script>
+    var currentPage = 1;
+    var pageSize = 7;
+    var deleteUserId = null;
+
+    // 加载用户数据
+    function loadUsers(page, limit) {
+        $('#userTableBody').html(`
+            <tr id="loadingRow">
+                <td colspan="6" class="text-center py-4">
+                    <div class="spinner-border text-secondary" role="status">
+                        <span class="visually-hidden">加载中...</span>
+                    </div>
+                    <p class="text-muted mt-2 mb-0">正在加载用户数据...</p>
+                </td>
+            </tr>
+        `);
+
+        $.ajax({
+            url: '{{ url_for("manger.selectallUserInfo") }}',
+            method: 'POST',
+            data: { page: page, limit: limit },
+            dataType: 'json',
+            success: function(res) {
+                if (res.code === 0) {
+                    renderTable(res.data, res.count, page, limit);
+                } else {
+                    showToast('数据加载失败', 'bg-danger text-white');
+                }
+            },
+            error: function() {
+                $('#userTableBody').html(`
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-danger">
+                            <i class="bi bi-exclamation-circle fs-3"></i>
+                            <p class="mt-2 mb-0">数据加载失败，请检查数据库连接</p>
+                        </td>
+                    </tr>
+                `);
+            }
+        });
+    }
+
+    function renderTable(data, total, page, limit) {
+        var tbody = $('#userTableBody');
+        tbody.empty();
+
+        if (!data || data.length === 0) {
+            tbody.html(`
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                        <i class="bi bi-inbox fs-3"></i>
+                        <p class="mt-2 mb-0">暂无用户数据</p>
+                    </td>
+                </tr>
+            `);
+            return;
+        }
+
+        $.each(data, function(index, item) {
+            var roleBadge = item.username === 'admin'
+                ? '<span class="badge-role"><i class="bi bi-shield-check me-1"></i>管理员</span>'
+                : '<span class="badge bg-light text-secondary rounded-pill"><i class="bi bi-person me-1"></i>普通用户</span>';
+
+            var row = `
+                <tr>
+                    <td><span class="fw-semibold text-secondary">${item.id}</span></td>
+                    <td class="fw-semibold">${escapeHtml(item.username)}</td>
+                    <td>${escapeHtml(item.email)}</td>
+                    <td class="text-muted small">-</td>
+                    <td>${roleBadge}</td>
+                    <td class="text-center">
+                        <button class="btn btn-outline-danger btn-sm rounded-pill delete-btn"
+                                data-id="${item.id}"
+                                data-username="${escapeHtml(item.username)}">
+                            <i class="bi bi-trash3"></i> 删除
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.append(row);
+        });
+
+        // 绑定删除按钮事件
+        $('.delete-btn').on('click', function() {
+            deleteUserId = $(this).data('id');
+            var username = $(this).data('username');
+            $('#deleteConfirmMsg').text('确定要删除用户「' + username + '」吗？此操作不可恢复。');
+            $('#deleteModal').modal('show');
+        });
+
+        // 更新分页
+        updatePagination(total, page, limit);
+        $('#totalCount').text(total);
+    }
+
+    function updatePagination(total, page, limit) {
+        var totalPages = Math.max(1, Math.ceil(total / limit));
+        var pagination = $('#pagination');
+        pagination.empty();
+
+        // 上一页
+        var prevDisabled = page <= 1 ? 'disabled' : '';
+        pagination.append(`
+            <li class="page-item ${prevDisabled}" id="prevPageLi">
+                <a class="page-link" href="#" id="prevPage"><i class="bi bi-chevron-left"></i></a>
+            </li>
+        `);
+
+        // 页码
+        var startPage = Math.max(1, page - 2);
+        var endPage = Math.min(totalPages, page + 2);
+        for (var i = startPage; i <= endPage; i++) {
+            var active = i === page ? 'active' : '';
+            pagination.append(`
+                <li class="page-item ${active}">
+                    <a class="page-link page-num" href="#" data-page="${i}">${i}</a>
+                </li>
+            `);
+        }
+
+        // 下一页
+        var nextDisabled = page >= totalPages ? 'disabled' : '';
+        pagination.append(`
+            <li class="page-item ${nextDisabled}" id="nextPageLi">
+                <a class="page-link" href="#" id="nextPage"><i class="bi bi-chevron-right"></i></a>
+            </li>
+        `);
+
+        // 绑定事件
+        $('#prevPage').on('click', function(e) {
+            e.preventDefault();
+            if (currentPage > 1) {
+                currentPage--;
+                loadUsers(currentPage, pageSize);
+            }
+        });
+        $('#nextPage').on('click', function(e) {
+            e.preventDefault();
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadUsers(currentPage, pageSize);
+            }
+        });
+        $('.page-num').on('click', function(e) {
+            e.preventDefault();
+            currentPage = parseInt($(this).data('page'));
+            loadUsers(currentPage, pageSize);
+        });
+
+        // 更新页数信息
+        $('#pageInfo').text('第 ' + page + ' 页 / 共 ' + totalPages + ' 页');
+    }
+
+    // 确认删除
+    $('#confirmDeleteBtn').on('click', function() {
+        if (!deleteUserId) return;
+
+        $.ajax({
+            url: '{{ url_for("manger.deleteUser") }}',
+            method: 'POST',
+            data: { id: deleteUserId },
+            success: function(res) {
+                if (res.success) {
+                    $('#deleteModal').modal('hide');
+                    showToast('用户删除成功', 'bg-success text-white');
+                    loadUsers(currentPage, pageSize);
+                } else {
+                    showToast('删除失败：' + (res.message || '未知错误'), 'bg-danger text-white');
+                }
+            },
+            error: function(xhr) {
+                showToast('请求失败：' + xhr.statusText, 'bg-danger text-white');
+            }
+        });
+    });
+
+    // 每页条数切换
+    $('#pageSizeSelect').on('change', function() {
+        pageSize = parseInt($(this).val());
+        currentPage = 1;
+        loadUsers(currentPage, pageSize);
+    });
+
+    // 显示 Toast
+    function showToast(message, bgClass) {
+        var toast = $('#toastMsg');
+        $('#toastBody').text(message);
+        toast.removeClass('bg-success bg-danger bg-warning text-white');
+        if (bgClass) toast.addClass(bgClass);
+        var bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+        bsToast.show();
+    }
+
+    // HTML 转义
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // 侧边栏
+    document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('show');
+    });
+
+    // 初始加载
+    $(function() {
+        loadUsers(currentPage, pageSize);
+    });
+</script>
+</body>
+</html>

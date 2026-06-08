@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品销量分析 - 天猫销售数据分析系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * { font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        body { background-color: #f8f9fc; overflow-x: hidden; }
+        .sidebar {
+            position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
+            width: 260px;
+            background: linear-gradient(180deg, #1e2a3a 0%, #0f1724 100%);
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+        }
+        .sidebar .logo {
+            padding: 1.5rem 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1rem;
+        }
+        .sidebar .logo a {
+            color: white; font-size: 1.3rem; font-weight: 700;
+            text-decoration: none; letter-spacing: 1px;
+        }
+        .sidebar .logo i { color: #e05a00; font-size: 1.6rem; margin-right: 8px; }
+        .sidebar .nav-link {
+            color: #cdd9f4; padding: 0.7rem 1.5rem; margin: 0.2rem 0;
+            border-radius: 0 40px 40px 0; transition: all 0.2s; font-weight: 500;
+        }
+        .sidebar .nav-link:hover {
+            background: rgba(224, 90, 0, 0.2); color: white; transform: translateX(4px);
+        }
+        .sidebar .nav-link.active {
+            background: linear-gradient(95deg, #e05a00, #ff6f2c);
+            color: white; box-shadow: 0 2px 8px rgba(224,90,0,0.3);
+        }
+        .sidebar .nav-link i { margin-right: 12px; font-size: 1.2rem; }
+        .main-content { margin-left: 260px; padding: 1.2rem; transition: all 0.3s; }
+        .top-navbar {
+            background: white; border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            padding: 0.7rem 1.5rem; margin-bottom: 1.8rem;
+        }
+        .chart-card {
+            background: white; border-radius: 28px; border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            padding: 1.5rem;
+        }
+        .chart-container { width: 100%; height: 500px; }
+        .stat-card {
+            background: white; border-radius: 28px; border: none;
+            transition: all 0.2s; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            padding: 1.2rem;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+        }
+        .stat-icon {
+            width: 48px; height: 48px; background: #fff0e6;
+            border-radius: 16px; display: flex; align-items: center;
+            justify-content: center; color: #e05a00; font-size: 1.5rem;
+        }
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: #1e2a3a; }
+        .stat-label { color: #5a6e8a; font-size: 0.85rem; }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); z-index: 1050; }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+        }
+        footer { text-align: center; margin-top: 2rem; color: #8a99b4; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<!-- 侧边栏 -->
+<div class="sidebar" id="sidebar">
+    <div class="logo">
+        <a href="{{ url_for('main.index') }}">
+            <i class="bi bi-cart4"></i> 天猫数据分析
+        </a>
+    </div>
+    <div class="nav flex-column">
+        <a href="{{ url_for('main.index') }}" class="nav-link" id="nav-dashboard">
+            <i class="bi bi-speedometer2"></i> 数据全景大屏
+        </a>
+        <a href="{{ url_for('manger.user_manager') }}" class="nav-link" id="nav-user-manager">
+            <i class="bi bi-people"></i> 用户管理
+        </a>
+        <a href="{{ url_for('menu.anaylise') }}" class="nav-link active" id="nav-analysis">
+            <i class="bi bi-graph-up"></i> 商品销量分析
+        </a>
+        <a href="{{ url_for('main.index') }}" class="nav-link" id="nav-product">
+            <i class="bi bi-box-seam"></i> 商品数据管理
+        </a>
+        <a href="{{ url_for('main.index') }}" class="nav-link" id="nav-profile">
+            <i class="bi bi-person-badge"></i> 个人信息
+        </a>
+    </div>
+</div>
+
+<!-- 主内容区 -->
+<div class="main-content">
+    <!-- 顶部导航栏 -->
+    <div class="top-navbar d-flex justify-content-between align-items-center flex-wrap">
+        <div class="d-flex align-items-center">
+            <button class="btn btn-link text-dark me-3 d-lg-none" id="sidebarToggle">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <h5 class="mb-0 fw-semibold">商品销量分析</h5>
+        </div>
+        <div>
+            <span class="text-muted small me-3"><i class="bi bi-calendar3"></i> 数据更新时间：实时</span>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                <i class="bi bi-box-arrow-right"></i> 退出
+            </a>
+        </div>
+    </div>
+
+    <!-- 数据概览卡片 -->
+    <div class="row g-4 mb-4">
+        <div class="col-sm-6 col-lg-4">
+            <div class="stat-card d-flex align-items-center">
+                <div class="stat-icon me-3">
+                    <i class="bi bi-box"></i>
+                </div>
+                <div>
+                    <div class="stat-label">商品总数</div>
+                    <div class="stat-value" id="totalGoods">-</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="stat-card d-flex align-items-center">
+                <div class="stat-icon me-3">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <div>
+                    <div class="stat-label">最高销量（b）</div>
+                    <div class="stat-value" id="maxB">-</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="stat-card d-flex align-items-center">
+                <div class="stat-icon me-3">
+                    <i class="bi bi-bar-chart"></i>
+                </div>
+                <div>
+                    <div class="stat-label">最高库存（c）</div>
+                    <div class="stat-value" id="maxC">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图表卡片 -->
+    <div class="chart-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-semibold mb-0"><i class="bi bi-bar-chart-fill me-2" style="color: #e05a00;"></i>商品销量与库存对比</h5>
+            <span class="badge bg-light text-secondary rounded-pill">2025 年度数据</span>
+        </div>
+        <div id="mainChart" class="chart-container"></div>
+    </div>
+
+    <footer>
+        <hr class="my-4">
+        <p>天猫商品销售数据分析系统 © 2025 | 数据驱动增长，洞察引领未来</p>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script>
+    // 侧边栏切换
+    document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('show');
+    });
+
+    // ECharts 图表
+    var chartDom = document.getElementById('mainChart');
+    var myChart = echarts.init(chartDom);
+
+    $.ajax({
+        url: "{{ url_for('anallise.select_goods') }}",
+        type: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            console.log('原始数据:', res);
+
+            // 处理数据: 将每行数据中的 a(商品ID) 作为x轴标签，b、c 作为系列值
+            var goodsLabels = [];
+            var seriesB = [];
+            var seriesC = [];
+            var total = res.length;
+            var maxBVal = 0;
+            var maxCVal = 0;
+
+            $.each(res, function(index, item) {
+                goodsLabels.push('商品 ' + item.a);
+                seriesB.push(item.b);
+                seriesC.push(item.c);
+                if (item.b > maxBVal) maxBVal = item.b;
+                if (item.c > maxCVal) maxCVal = item.c;
+            });
+
+            // 更新统计卡片
+            $('#totalGoods').text(total);
+            $('#maxB').text(maxBVal);
+            $('#maxC').text(maxCVal);
+
+            // 渲染图表
+            var option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' }
+                },
+                legend: {
+                    data: ['销量 (b)', '库存 (c)'],
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: goodsLabels,
+                    axisLabel: { fontWeight: 500 }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '数值'
+                },
+                series: [
+                    {
+                        name: '销量 (b)',
+                        type: 'bar',
+                        data: seriesB,
+                        itemStyle: {
+                            borderRadius: [6, 6, 0, 0],
+                            color: {
+                                type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                                colorStops: [
+                                    { offset: 0, color: '#e05a00' },
+                                    { offset: 1, color: '#ff8c42' }
+                                ]
+                            }
+                        },
+                        label: {
+                            show: true,
+                            position: 'top',
+                            fontWeight: 600
+                        }
+                    },
+                    {
+                        name: '库存 (c)',
+                        type: 'bar',
+                        data: seriesC,
+                        itemStyle: {
+                            borderRadius: [6, 6, 0, 0],
+                            color: {
+                                type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                                colorStops: [
+                                    { offset: 0, color: '#5470c6' },
+                                    { offset: 1, color: '#8db0f5' }
+                                ]
+                            }
+                        },
+                        label: {
+                            show: true,
+                            position: 'top',
+                            fontWeight: 600
+                        }
+                    }
+                ]
+            };
+
+            myChart.setOption(option);
+        },
+        error: function(xhr) {
+            console.error('数据加载失败:', xhr);
+            $('#totalGoods').text('加载失败');
+        }
+    });
+
+    // 窗口自适应
+    window.addEventListener('resize', function() {
+        myChart.resize();
+    });
+</script>
+</body>
+</html>

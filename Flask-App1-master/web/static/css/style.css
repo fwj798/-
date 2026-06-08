@@ -1,0 +1,18 @@
+.card {
+    margin-top: 2rem;
+    border-radius: 15px;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 0.5rem 2rem;
+}
+
+.form-control {
+    border-radius: 25px;
+    padding: 0.5rem 1.5rem;
+}
