@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <title>桂怪 — 栏目 | 发现广西的独特奇妙之处</title>
+  <meta name="description" content="探索广西民族文化的精彩子类：民族节庆、服饰、乐器、美食的独特风物。">
+  <meta name="keywords" content="广西,民族文化,非遗,壮族,侗族,瑶族,苗族,京族,毛南族,三月三,螺蛳粉,铜鼓">
+
+  <meta property="og:title" content="桂怪 — 发现广西的独特奇妙之处">
+  <meta property="og:description" content="探索广西民族文化的精彩子类。">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all';">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
+
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js" defer></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+  </head>
+<body>
+
+  <!-- ====== 序列帧背景 Canvas ====== -->
+  <canvas id="sequence-canvas" class="canvas-bg" aria-hidden="true"></canvas>
+
+  <!-- ====== 加载指示器 ====== -->
+  <div class="sequence-loader" id="sequence-loader" aria-live="polite">
+    <span id="sequence-loader-text">加载序列帧…</span>
+    <div class="sequence-loader__dots">
+      <span class="sequence-loader__dot"></span>
+      <span class="sequence-loader__dot"></span>
+      <span class="sequence-loader__dot"></span>
+    </div>
+  </div>
+
+  <!-- ====== 极简浮动导航 ====== -->
+  <header class="nav" role="banner">
+    <a href="index.html" class="nav__logo" aria-label="桂怪首页">桂怪</a>
+    <nav class="nav__categories" aria-label="栏目导航">
+      <a href="category.html?id=minzu" class="nav__category-link" data-cat="minzu">民族文化</a>
+      <a href="category.html?id=fushi" class="nav__category-link" data-cat="fushi">服饰</a>
+      <a href="category.html?id=yueqi" class="nav__category-link" data-cat="yueqi">乐器</a>
+      <a href="category.html?id=meishi" class="nav__category-link" data-cat="meishi">美食</a>
+    </nav>
+  </header>
+
+  <!-- ====== 主体内容 ====== -->
+  <main role="main">
+
+    <!-- 栏目 Hero（序列帧文字叠加层） -->
+    <section class="section section--dark category-hero" id="category-hero">
+      <div class="container container--narrow">
+        <h1 class="category-hero__title" id="category-title">栏目</h1>
+        <p class="category-hero__desc" id="category-desc">加载中…</p>
+      </div>
+    </section>
+
+    <!-- 子元素卡片网格 -->
+    <section class="section category-items" id="category-items-section">
+      <div class="container">
+        <div class="category-items__list" id="items-list">
+          <!-- 由 category.js 动态生成 -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====== 页脚 ====== -->
+  <footer class="footer" role="contentinfo">
+    <p class="footer__text">© 2026 桂怪 — NCDA 大学生未来设计师大赛 参赛作品</p>
+  </footer>
+
+  <!-- 角色5：交互特效模块 -->
+    <script src="js/textfx.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
+  <script src="js/smooth.js" defer></script>
+  <script src="js/parallax.js" defer></script>
+  <script src="js/particles.js" defer></script>
+  <script src="js/breathe.js" defer></script>
+  <script src="js/category.js" defer></script>
+</body>
+</html>
+
+
+
+
+
